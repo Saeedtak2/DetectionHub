@@ -1,4 +1,4 @@
-# Cybersecurity Experience and Knowledge Repository
+# DetectionHub
 
 ## Introduction
 
@@ -6,16 +6,20 @@ Welcome to my Cybersecurity Experience and Knowledge Repository! This repository
 
 ## About Me
 
+I’m Saeed Takbiri, a cybersecurity professional with over 10 years of experience in SOC operations, threat detection, incident response, and proactive threat hunting. My passion is helping teams build stronger defenses through practical use cases, detection rules, and automation.
+
 ## What You'll Find Here
 
-In this repository, you'll find a wealth of resources covering a wide range of cybersecurity topics, including but not limited to:
+Inside this repository, you’ll discover curated content spanning key areas of cybersecurity, including:
 
-- Threat Intelligence
-- Incident Response
-- Vulnerability Management
-- Network Security
-- Compliance and Regulations
-- Security Tools and Technologies
+    Threat Intelligence
+    Incident Response
+    Vulnerability Management
+    Network Security
+    Compliance and Regulations
+    Security Tools and Technologies
+
+This includes articles, guides, tutorials, sample code, and recommended tools — all based on real-world experience and best practices.
 
 Each section contains articles, guides, tutorials, code samples, and recommended resources curated by me based on my experiences and expertise.
 
@@ -30,4 +34,6 @@ Your contributions will help make this repository a valuable resource for cybers
 
 ## Connect With Me
 
-I'm passionate about cybersecurity and enjoy connecting with like-minded individuals. Feel free to reach out to me  on LinkedIn www.linkedin.com/in/takbiri-saeed if you have any questions, feedback, or just want to chat about cybersecurity!
+I love connecting with fellow cybersecurity enthusiasts and professionals. Feel free to reach out on LinkedIn if you want to discuss ideas, collaborate, or just chat:
+
+linkedin.com/in/takbiri-saeed
