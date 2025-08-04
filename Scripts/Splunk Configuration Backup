@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# =========[ CONFIGURATION ]=========
+REMOTE_SERVERS=("SPLUNK_SERVER_1" "SPLUNK_SERVER_2")  # Replace with actual hostnames or IPs
+REMOTE_USER="YOUR_REMOTE_USER"                        # User with SSH key and sudo privileges
+BACKUP_BASE_DIR="/opt/backup"                         # Local backup target on this (backup) server
+DATE=$(date +"%Y-%m-%d_%H-%M-%S")                      # Timestamp for unique backup folder
+RETENTION_DAYS=3                                       # Retain backups for this many days
+LOG_FILE="/opt/backup/splunk_backup.log"              # Log file path
+
+# =========[ FUNCTIONS ]=========
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+run_command() {
+    local desc="$1"
+    local cmd="$2"
+    log "🔹 $desc"
+    if eval "$cmd"; then
+        log "✔ $desc succeeded"
+    else
+        log "❌ Command failed (exit code $?): $desc"
+        log "🔸 Error Output: $(eval "$cmd" 2>&1 >/dev/null)"
+        return 1
+    fi
+}
+
+# =========[ MAIN BACKUP LOOP ]=========
+for SERVER in "${REMOTE_SERVERS[@]}"; do
+    log "=== Starting backup for $SERVER ==="
+
+    BACKUP_DIR="$BACKUP_BASE_DIR/$SERVER/$DATE"
+    run_command "Creating backup directory $BACKUP_DIR" "mkdir -p \"$BACKUP_DIR\"" || continue
+
+    # Backup /opt/splunk/etc
+    CMD_ETC="ssh \"$REMOTE_USER@$SERVER\" \"sudo tar --warning=no-file-changed -czf - /opt/splunk/etc\" > \"$BACKUP_DIR/etc.tar.gz\""
+    run_command "Backing up /opt/splunk/etc from $SERVER" "$CMD_ETC" || continue
+
+    # Backup /opt/splunk/var/lib/splunk/kvstore
+    CMD_KV="ssh \"$REMOTE_USER@$SERVER\" \"sudo tar --warning=no-file-changed -czf - /opt/splunk/var/lib/splunk/kvstore\" > \"$BACKUP_DIR/kvstore.tar.gz\""
+    run_command "Backing up kvstore from $SERVER" "$CMD_KV" || continue
+
+    log "✅ Backup completed for $SERVER. Files saved in $BACKUP_DIR"
+done
+
+# =========[ CLEANUP OLD BACKUPS ]=========
+log "🧹 Cleaning up backups older than $RETENTION_DAYS days in $BACKUP_BASE_DIR..."
+find "$BACKUP_BASE_DIR" -type d -mtime +$RETENTION_DAYS -exec rm -rf {} \; && \
+log "✔ Cleanup complete." || \
+log "❌ ERROR during cleanup."
+
+log "=== Backup job completed ==="
+exit 0
