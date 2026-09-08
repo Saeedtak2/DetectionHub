@@ -1,0 +1,48 @@
+name: Suspicious Double Extension File Execution
+id: 8b1b0352-e1c4-4c0e-8959-e07067e4b6fc
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Florian Roth (Nextron Systems), @blu3_team (idea), Nasreddine Bencherchali (Nextron Systems), original Sigma rule
+status: experimental
+type: TTP
+description: Detects suspicious use of an .exe extension after a non-executable file extension like .pdf.exe, a set of spaces or underlines to cloak the executable file in spear phishing campaigns. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Sysmon EventID 1
+- Windows Event Log Security 4688
+- CrowdStrike ProcessRollup2
+search: |-
+  | tstats summariesonly=false allow_old_summaries=true fillnull_value="null" count min(_time) as firstTime max(_time) as lastTime from datamodel=Endpoint.Processes where (Processes.process_path IN ("* .exe", "*______.exe", "*.doc.exe", "*.doc.js", "*.docx.exe", "*.docx.js", "*.gif.exe", "*.jpeg.exe", "*.jpg.exe", "*.mkv.exe", "*.mov.exe", "*.mp3.exe", "*.mp4.exe", "*.pdf.exe", "*.pdf.js", "*.png.exe", "*.ppt.exe", "*.ppt.js", "*.pptx.exe", "*.pptx.js", "*.rtf.exe", "*.rtf.js", "*.svg.exe", "*.txt.exe", "*.txt.js", "*.xls.exe", "*.xls.js", "*.xlsx.exe", "*.xlsx.js", "*⠀⠀⠀⠀⠀⠀.exe") Processes.process IN ("* .exe*", "*______.exe*", "*.doc.exe*", "*.doc.js*", "*.docx.exe*", "*.docx.js*", "*.gif.exe*", "*.jpeg.exe*", "*.jpg.exe*", "*.mkv.exe*", "*.mov.exe*", "*.mp3.exe*", "*.mp4.exe*", "*.pdf.exe*", "*.pdf.js*", "*.png.exe*", "*.ppt.exe*", "*.ppt.js*", "*.pptx.exe*", "*.pptx.js*", "*.rtf.exe*", "*.rtf.js*", "*.svg.exe*", "*.txt.exe*", "*.txt.js*", "*.xls.exe*", "*.xls.js*", "*.xlsx.exe*", "*.xlsx.js*", "*⠀⠀⠀⠀⠀⠀.exe*")) by Processes.action Processes.dest Processes.original_file_name Processes.parent_process Processes.parent_process_exec Processes.parent_process_guid Processes.parent_process_id Processes.parent_process_name Processes.parent_process_path Processes.process Processes.process_exec Processes.process_guid Processes.process_hash Processes.process_id Processes.process_integrity_level Processes.process_name Processes.process_path Processes.user Processes.user_id Processes.vendor_product | rename Processes.* AS * | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic requires endpoint process-creation telemetry with full command lines. Configure the applicable Splunk Technology Add-on so endpoint events are normalized to the Processes node of the Endpoint Common Information Model data model. Confirm that process, process name, original file name, parent process, destination, user, and process identifiers are populated. Data-model acceleration is recommended but is not required because summariesonly is set to false. Expected source classes include: Sysmon EventID 1, Windows Event Log Security 4688, CrowdStrike ProcessRollup2.'
+known_false_positives: Legitimate administrative or operational activity may match Suspicious Double Extension File Execution. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.
+references:
+- https://blu3-team.blogspot.com/2019/06/misleading-extensions-xlsexe-docexe.html
+- https://twitter.com/blackorbird/status/1140519090961825792
+- https://cloud.google.com/blog/topics/threat-intelligence/cybercriminals-weaponize-fake-ai-websites
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_susp_double_extension.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Suspicious Double Extension File Execution involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 70
+analytic_story:
+- Suspicious Command-Line Executions
+asset_type: Windows
+mitre_attack_id:
+- T1566.001
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

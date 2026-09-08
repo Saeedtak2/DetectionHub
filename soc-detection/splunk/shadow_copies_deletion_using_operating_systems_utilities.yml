@@ -1,0 +1,55 @@
+name: Shadow Copies Deletion Using Operating Systems Utilities
+id: 70725b16-b7f8-4880-81c7-d35b64203ab7
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Florian Roth (Nextron Systems), Michael Haag, Teymur Kheirkhabarov, Daniil Yugoslavskiy, oscd.community, Andreas Hunkeler (@Karneades), original Sigma rule
+status: experimental
+type: TTP
+description: Shadow Copies deletion using operating systems utilities. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Sysmon EventID 1
+- Windows Event Log Security 4688
+- CrowdStrike ProcessRollup2
+search: |-
+  | tstats summariesonly=false allow_old_summaries=true fillnull_value="null" count min(_time) as firstTime max(_time) as lastTime from datamodel=Endpoint.Processes where ((Processes.process_path IN ("*\\powershell.exe", "*\\pwsh.exe", "*\\wmic.exe", "*\\vssadmin.exe", "*\\diskshadow.exe") OR Processes.original_file_name IN ("PowerShell.EXE", "pwsh.dll", "wmic.exe", "VSSADMIN.EXE", "diskshadow.exe") Processes.process="*shadow*" Processes.process="*delete*") OR (Processes.process_path="*\\wbadmin.exe" OR Processes.original_file_name="WBADMIN.EXE" Processes.process="*delete*" Processes.process="*catalog*" Processes.process="*quiet*") OR (Processes.process_path="*\\vssadmin.exe" OR Processes.original_file_name="VSSADMIN.EXE" Processes.process="*resize*" Processes.process="*shadowstorage*" Processes.process IN ("*unbounded*", "*/MaxSize=*"))) by Processes.action Processes.dest Processes.original_file_name Processes.parent_process Processes.parent_process_exec Processes.parent_process_guid Processes.parent_process_id Processes.parent_process_name Processes.parent_process_path Processes.process Processes.process_exec Processes.process_guid Processes.process_hash Processes.process_id Processes.process_integrity_level Processes.process_name Processes.process_path Processes.user Processes.user_id Processes.vendor_product | rename Processes.* AS * | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic requires endpoint process-creation telemetry with full command lines. Configure the applicable Splunk Technology Add-on so endpoint events are normalized to the Processes node of the Endpoint Common Information Model data model. Confirm that process, process name, original file name, parent process, destination, user, and process identifiers are populated. Data-model acceleration is recommended but is not required because summariesonly is set to false. Expected source classes include: Sysmon EventID 1, Windows Event Log Security 4688, CrowdStrike ProcessRollup2.'
+known_false_positives: 'Known Sigma guidance: Legitimate Administrator deletes Shadow Copies using operating systems utilities for legitimate reason; LANDesk LDClient Ivanti-PSModule (PS EncodedCommand). Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://www.slideshare.net/heirhabarov/hunting-for-credentials-dumping-in-windows-environment
+- https://blog.talosintelligence.com/2017/05/wannacry.html
+- https://securingtomorrow.mcafee.com/other-blogs/mcafee-labs/new-teslacrypt-ransomware-arrives-via-spam/
+- https://www.bleepingcomputer.com/news/security/why-everyone-should-disable-vssadmin-exe-now/
+- https://www.hybrid-analysis.com/sample/ed01ebfbc9eb5bbea545af4d01bf5f1071661840480439c6e5babe8e080e41aa?environmentId=100
+- https://github.com/Neo23x0/Raccine#the-process
+- https://github.com/Neo23x0/Raccine/blob/20a569fa21625086433dcce8bb2765d0ea08dcb6/yara/gen_ransomware_command_lines.yar
+- https://redcanary.com/blog/intelligence-insights-october-2021/
+- https://symantec-enterprise-blogs.security.com/blogs/threat-intelligence/blackbyte-exbyte-ransomware
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_susp_shadow_copies_deletion.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Shadow Copies Deletion Using Operating Systems Utilities involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 70
+analytic_story:
+- Ransomware
+asset_type: Windows
+mitre_attack_id:
+- T1070
+- T1490
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

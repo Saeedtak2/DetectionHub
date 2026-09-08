@@ -1,0 +1,47 @@
+name: Ruby on Rails Framework Exceptions
+id: 95ac32ae-8bea-4671-a727-683b03a649be
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Thomas Patzke, original Sigma rule
+status: experimental
+type: TTP
+description: Detects suspicious Ruby on Rails exceptions that could indicate exploitation attempts. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Application Logs
+search: |-
+  index=* "ActionController::InvalidAuthenticityToken" OR "ActionController::InvalidCrossOriginRequest" OR "ActionController::MethodNotAllowed" OR "ActionController::BadRequest" OR "ActionController::ParameterMissing" | fillnull value="null" dest, user | stats count min(_time) as firstTime max(_time) as lastTime by dest, user | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic was converted from a SigmaHQ stable rule. Ingest the matching log source into Splunk, extract the fields referenced in the search, and constrain index/source/sourcetype to the local CIM or TA field names. Replace the leading index=* with the production index after validation. Tune exclusions only after confirming legitimate activity in the target environment. Expected source classes include: Application Logs.'
+known_false_positives: 'Known Sigma guidance: Application bugs. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- http://edgeguides.rubyonrails.org/security.html
+- http://guides.rubyonrails.org/action_controller_overview.html
+- https://stackoverflow.com/questions/25892194/does-rails-come-with-a-not-authorized-exception
+- https://github.com/rails/rails/blob/cd08e6bcc4cd8948fe01e0be1ea0c7ca60373a25/actionpack/lib/action_dispatch/middleware/exception_wrapper.rb
+- https://github.com/SigmaHQ/sigma/blob/master/rules/application/ruby/appframework_ruby_on_rails_exceptions.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Ruby on Rails Framework Exceptions involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 47
+analytic_story:
+- Unusual Processes
+asset_type: Web Application
+mitre_attack_id:
+- T1190
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: application
+security_domain: threat
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental
