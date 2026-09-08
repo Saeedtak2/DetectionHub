@@ -1,0 +1,50 @@
+name: CMSTP App Paths Registry Key Modification
+id: 55858611-fed9-4f9d-a20b-cbd9a5e9cc20
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Nik Seetharaman, original Sigma rule
+status: experimental
+type: TTP
+description: 'Detects modifications to the CMSTP App Paths registry key. This may indicate abuse of
+
+  Microsoft Connection Manager Profile Installer (CMSTP) for arbitrary code execution or UAC bypass. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.'
+data_source:
+- Sysmon EventID 12
+- Sysmon EventID 13
+- Sysmon EventID 14
+search: |-
+  | tstats summariesonly=false allow_old_summaries=true fillnull_value="null" count min(_time) as firstTime max(_time) as lastTime from datamodel=Endpoint.Registry where (Registry.registry_key_name="*SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\cmmgr32.exe\\*" NOT ((Registry.registry_key_name="*SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\cmmgr32.exe\\CmstpExtensionDll" Registry.registry_value_data IN ("C:\\Windows\\System32\\cmcfg32.dll", "C:\\Windows\\SysWOW64\\cmcfg32.dll")) OR Registry.registry_value_data="(Empty)")) by Registry.action Registry.dest Registry.process_guid Registry.process_id Registry.registry_hive Registry.registry_key_name Registry.registry_path Registry.registry_value_data Registry.registry_value_name Registry.registry_value_type Registry.status Registry.user Registry.vendor_product | rename Registry.* AS * | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic requires endpoint registry telemetry mapped to the Registry node of the Endpoint Common Information Model data model. Ingest Sysmon registry events or equivalent EDR registry activity and confirm registry path, value name, value data, destination, and user fields are populated. Data-model acceleration is recommended but is not required because summariesonly is set to false. Expected source classes include: Sysmon EventID 12, Sysmon EventID 13, Sysmon EventID 14.'
+known_false_positives: 'Known Sigma guidance: Legitimate CMSTP use (unlikely in modern enterprise environments). Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://lolbas-project.github.io/lolbas/Binaries/Cmstp/
+- https://web.archive.org/web/20190720093911/http://www.endurant.io/cmstp/detecting-cmstp-enabled-code-execution-and-uac-bypass-with-sysmon/
+- https://web.archive.org/web/20190722224110/https://oddvar.moe/2017/08/15/research-on-cmstp-exe/
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/registry/registry_event/registry_event_cmstp_execution_by_registry.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: CMSTP App Paths Registry Key Modification involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 70
+analytic_story:
+- Windows Defense Evasion Tactics
+asset_type: Windows
+mitre_attack_id:
+- T1218.003
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental
