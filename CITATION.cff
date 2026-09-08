@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use DetectionHub in research, training, or a security operations program, cite this repository and the specific commit or release used."
+title: "DetectionHub: Security Operations Content Library"
+type: software
+authors:
+  - family-names: "Takbiri"
+    given-names: "Saeed"
+    alias: "saeedtakbiri"
+repository-code: "https://github.com/saeedtakbiri/DetectionHub"
+url: "https://github.com/saeedtakbiri/DetectionHub"
+abstract: >-
+  A public Security Operations Center content repository covering detection
+  engineering, Sigma rules, Splunk SPL, Microsoft Sentinel KQL, Elastic
+  Security, MITRE ATT&CK, threat hunting, incident response, SOAR automation,
+  and blue-team tools.
+keywords:
+  - security operations center
+  - SOC
+  - detection engineering
+  - detection as code
+  - Sigma rules
+  - Splunk SPL
+  - Microsoft Sentinel
+  - KQL
+  - Elastic Security
+  - MITRE ATT&CK
+  - threat hunting
+  - incident response
+  - SOAR
+  - blue team
+  - DFIR

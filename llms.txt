@@ -1,0 +1,24 @@
+# DetectionHub
+
+> A public Security Operations Center content repository for detection engineering, threat hunting, incident response, SOAR automation, and blue-team tools.
+
+DetectionHub organizes defensive-security knowledge into documented, reviewable GitHub content. It supports Sigma detection rules, Splunk SPL, Microsoft Sentinel KQL, Elastic Security queries, MITRE ATT&CK mappings, threat hunting plans, incident response playbooks, and analyst scripts. Content must be validated in the target environment before production use.
+
+## Core content
+
+- [SOC Detection Engineering](https://github.com/saeedtakbiri/DetectionHub/tree/main/soc-detection): Detection rules, correlations, data-source requirements, tests, and lifecycle documentation.
+- [SOC Threat Hunting](https://github.com/saeedtakbiri/DetectionHub/tree/main/soc-threat-hunting): Hunt hypotheses, plans, SIEM queries, ATT&CK mappings, validation, and reports.
+- [SOC Automation](https://github.com/saeedtakbiri/DetectionHub/tree/main/soc-automation): SOAR workflows, enrichment, integrations, notifications, and controlled automation.
+- [Incident Response](https://github.com/saeedtakbiri/DetectionHub/tree/main/incident-response): Triage and response playbooks for common security incident categories.
+- [Tools and Scripts](https://github.com/saeedtakbiri/DetectionHub/tree/main/tools-and-scripts): Python, PowerShell, Bash, parsers, converters, and analyst utilities.
+
+## Project information
+
+- [Project README](https://github.com/saeedtakbiri/DetectionHub/blob/main/README.md): Purpose, audiences, content areas, standards, structure, and frequently asked questions.
+- [Contributing](https://github.com/saeedtakbiri/DetectionHub/blob/main/CONTRIBUTING.md): Content requirements, validation expectations, and contribution workflow.
+- [Security Policy](https://github.com/saeedtakbiri/DetectionHub/blob/main/SECURITY.md): Private reporting and safe-use requirements.
+- [Citation Metadata](https://github.com/saeedtakbiri/DetectionHub/blob/main/CITATION.cff): Machine-readable author, repository, description, and subject metadata.
+
+## Safety
+
+Do not use this repository to store or share credentials, personal data, real incident evidence, confidential configurations, internal infrastructure, packet captures, memory dumps, or live malware. Test all content in an authorized environment. Human approval is required for destructive or irreversible response actions.
