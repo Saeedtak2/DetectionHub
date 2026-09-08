@@ -1,0 +1,28 @@
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+
+# Sensitive or large evidence
+*.pcap
+*.pcapng
+*.evtx
+*.dmp
+*.raw
+*.zip
+*.7z
+artifacts/
+evidence/
+logs/
+
+# Development
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+.DS_Store
