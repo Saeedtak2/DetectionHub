@@ -3,7 +3,7 @@ id: a8ba1ab0-ea4c-4cc7-b729-7fd19fa8d704
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; frack113, original Sigma rule
+author: Saeed Takbiri, DetectionHub;
 status: experimental
 type: TTP
 description: Shadow Copies deletion using operating systems utilities via PowerShell. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
