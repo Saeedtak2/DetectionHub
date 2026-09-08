@@ -3,7 +3,7 @@ id: 6b1065ea-74a1-40a0-a50a-e032f31ccb5e
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Ecco, E.M. Anhaus, oscd.community, original Sigma rule
+author: Saeed Takbiri, DetectionHub;
 status: experimental
 type: TTP
 description: 'Detects suspicious parameters of fsutil (deleting USN journal, configuring it with small size, etc).
