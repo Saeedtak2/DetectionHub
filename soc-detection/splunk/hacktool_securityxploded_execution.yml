@@ -3,7 +3,7 @@ id: 6fc324c3-9097-47b6-a565-9466c502c722
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Florian Roth (Nextron Systems), original Sigma rule
+author: Saeed Takbiri, DetectionHub; 
 status: experimental
 type: TTP
 description: Detects the execution of SecurityXploded Tools. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
