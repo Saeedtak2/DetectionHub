@@ -3,7 +3,7 @@ id: e3acc25e-59e0-466c-a3b0-4f48cc31c18b
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Florian Roth (Nextron Systems), original Sigma rule
+author: Saeed Takbiri, DetectionHub;
 status: experimental
 type: TTP
 description: Detects the execution of the hacktool Rubeus via PE information of command line parameters. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
