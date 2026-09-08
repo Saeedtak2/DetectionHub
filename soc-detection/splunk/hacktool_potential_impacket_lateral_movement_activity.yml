@@ -1,0 +1,51 @@
+name: HackTool - Potential Impacket Lateral Movement Activity
+id: d3d21bb4-4568-41ae-8945-faf0572d524b
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Ecco, oscd.community, Jonhnathan Ribeiro, Tim Rauch, original Sigma rule
+status: experimental
+type: TTP
+description: Detects wmiexec/dcomexec/atexec/smbexec from Impacket framework. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Sysmon EventID 1
+- Windows Event Log Security 4688
+- CrowdStrike ProcessRollup2
+search: |-
+  | tstats summariesonly=false allow_old_summaries=true fillnull_value="null" count min(_time) as firstTime max(_time) as lastTime from datamodel=Endpoint.Processes where ((Processes.parent_process_path IN ("*\\wmiprvse.exe", "*\\mmc.exe", "*\\explorer.exe", "*\\services.exe") Processes.process="*cmd.exe*" Processes.process="*/Q*" Processes.process="*/c*" Processes.process="*\\\\127.0.0.1\\*" Processes.process="*&1*") OR (Processes.parent_process IN ("*svchost.exe -k netsvcs*", "*taskeng.exe*") Processes.process="*cmd.exe*" Processes.process="*/C*" Processes.process="*Windows\\Temp\\*" Processes.process="*&1*")) by Processes.action Processes.dest Processes.original_file_name Processes.parent_process Processes.parent_process_exec Processes.parent_process_guid Processes.parent_process_id Processes.parent_process_name Processes.parent_process_path Processes.process Processes.process_exec Processes.process_guid Processes.process_hash Processes.process_id Processes.process_integrity_level Processes.process_name Processes.process_path Processes.user Processes.user_id Processes.vendor_product | rename Processes.* AS * | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic requires endpoint process-creation telemetry with full command lines. Configure the applicable Splunk Technology Add-on so endpoint events are normalized to the Processes node of the Endpoint Common Information Model data model. Confirm that process, process name, original file name, parent process, destination, user, and process identifiers are populated. Data-model acceleration is recommended but is not required because summariesonly is set to false. Expected source classes include: Sysmon EventID 1, Windows Event Log Security 4688, CrowdStrike ProcessRollup2.'
+known_false_positives: Legitimate administrative or operational activity may match HackTool - Potential Impacket Lateral Movement Activity. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.
+references:
+- https://github.com/SecureAuthCorp/impacket/blob/8b1a99f7c715702eafe3f24851817bb64721b156/examples/wmiexec.py
+- https://github.com/SecureAuthCorp/impacket/blob/8b1a99f7c715702eafe3f24851817bb64721b156/examples/atexec.py
+- https://github.com/SecureAuthCorp/impacket/blob/8b1a99f7c715702eafe3f24851817bb64721b156/examples/smbexec.py
+- https://github.com/SecureAuthCorp/impacket/blob/8b1a99f7c715702eafe3f24851817bb64721b156/examples/dcomexec.py
+- https://www.elastic.co/guide/en/security/current/suspicious-cmd-execution-via-wmi.html
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_hktl_impacket_lateral_movement.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: HackTool - Potential Impacket Lateral Movement Activity involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 70
+analytic_story:
+- Suspicious WMI Use
+asset_type: Windows
+mitre_attack_id:
+- T1047
+- T1021.003
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

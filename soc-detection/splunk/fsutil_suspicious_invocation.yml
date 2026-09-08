@@ -1,0 +1,53 @@
+name: Fsutil Suspicious Invocation
+id: 6b1065ea-74a1-40a0-a50a-e032f31ccb5e
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Ecco, E.M. Anhaus, oscd.community, original Sigma rule
+status: experimental
+type: TTP
+description: 'Detects suspicious parameters of fsutil (deleting USN journal, configuring it with small size, etc).
+
+  Might be used by ransomwares during the attack (seen by NotPetya and others). This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.'
+data_source:
+- Sysmon EventID 1
+- Windows Event Log Security 4688
+- CrowdStrike ProcessRollup2
+search: |-
+  | tstats summariesonly=false allow_old_summaries=true fillnull_value="null" count min(_time) as firstTime max(_time) as lastTime from datamodel=Endpoint.Processes where (Processes.process_path="*\\fsutil.exe" OR Processes.original_file_name="fsutil.exe" Processes.process IN ("*deletejournal*", "*createjournal*", "*setZeroData*")) by Processes.action Processes.dest Processes.original_file_name Processes.parent_process Processes.parent_process_exec Processes.parent_process_guid Processes.parent_process_id Processes.parent_process_name Processes.parent_process_path Processes.process Processes.process_exec Processes.process_guid Processes.process_hash Processes.process_id Processes.process_integrity_level Processes.process_name Processes.process_path Processes.user Processes.user_id Processes.vendor_product | rename Processes.* AS * | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic requires endpoint process-creation telemetry with full command lines. Configure the applicable Splunk Technology Add-on so endpoint events are normalized to the Processes node of the Endpoint Common Information Model data model. Confirm that process, process name, original file name, parent process, destination, user, and process identifiers are populated. Data-model acceleration is recommended but is not required because summariesonly is set to false. Expected source classes include: Sysmon EventID 1, Windows Event Log Security 4688, CrowdStrike ProcessRollup2.'
+known_false_positives: 'Known Sigma guidance: Admin activity; Scripts and administrative tools used in the monitored environment. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/fsutil-usn
+- https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1070/T1070.md
+- https://eqllib.readthedocs.io/en/latest/analytics/c91f422a-5214-4b17-8664-c5fcf115c0a2.html
+- https://github.com/albertzsigovits/malware-notes/blob/558898932c1579ff589290092a2c8febefc3a4c9/Ransomware/Lockbit.md
+- https://blog.cluster25.duskrise.com/2023/05/22/back-in-black-blackbyte-nt
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_fsutil_usage.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Fsutil Suspicious Invocation involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 70
+analytic_story:
+- Ransomware
+asset_type: Windows
+mitre_attack_id:
+- T1070
+- T1485
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental
