@@ -3,7 +3,7 @@ id: 10bcabac-019e-487a-8f57-db2c694ca41b
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Ömer Günal, oscd.community, CheraaghiMilad, original Sigma rule
+author: Saeed Takbiri, DetectionHub; 
 status: experimental
 type: TTP
 description: 'Detects process discovery commands. Adversaries may attempt to get information about running processes on a system.
