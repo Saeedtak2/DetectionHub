@@ -3,7 +3,7 @@ id: 70725b16-b7f8-4880-81c7-d35b64203ab7
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Florian Roth (Nextron Systems), Michael Haag, Teymur Kheirkhabarov, Daniil Yugoslavskiy, oscd.community, Andreas Hunkeler (@Karneades), original Sigma rule
+author: Saeed Takbiri, DetectionHub; 
 status: experimental
 type: TTP
 description: Shadow Copies deletion using operating systems utilities. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
