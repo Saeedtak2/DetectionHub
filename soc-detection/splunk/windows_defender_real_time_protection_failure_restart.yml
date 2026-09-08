@@ -1,0 +1,45 @@
+name: Windows Defender Real-Time Protection Failure/Restart
+id: 45fe2274-b3a3-42d7-85a3-5e9a02d26c31
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Nasreddine Bencherchali (Nextron Systems), Christopher Peacock '@securepeacock' (Update), original Sigma rule
+status: experimental
+type: TTP
+description: Detects issues with Windows Defender Real-Time Protection features. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Windows Event Log Microsoft-Windows-Windows Defender
+search: |-
+  index=* source="WinEventLog:Microsoft-Windows-Windows Defender/Operational" EventCode IN (3002, 3007) NOT (Feature_Name="%%886" Reason IN ("%%892", "%%858")) | fillnull value="null" dest, user | stats count min(_time) as firstTime max(_time) as lastTime by dest, user | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic was converted from a SigmaHQ stable rule. Ingest the matching log source into Splunk, extract the fields referenced in the search, and constrain index/source/sourcetype to the local CIM or TA field names. Replace the leading index=* with the production index after validation. Tune exclusions only after confirming legitimate activity in the target environment. Expected source classes include: Windows Event Log Microsoft-Windows-Windows Defender.'
+known_false_positives: 'Known Sigma guidance: Some crashes can occur sometimes and the event doesn''t provide enough information to tune out these cases. Manual exception is required. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://www.microsoft.com/en-us/security/blog/2023/04/11/guidance-for-investigating-attacks-using-cve-2022-21894-the-blacklotus-campaign/
+- https://gist.github.com/nasbench/33732d6705cbdc712fae356f07666346
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/builtin/windefend/win_defender_real_time_protection_errors.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Windows Defender Real-Time Protection Failure/Restart involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 47
+analytic_story:
+- Windows Defense Evasion Tactics
+asset_type: Windows
+mitre_attack_id:
+- T1685
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

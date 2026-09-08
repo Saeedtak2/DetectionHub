@@ -1,0 +1,46 @@
+name: WmiPrvSE Spawned A Process
+id: d7f05217-ccb3-4c16-9ea7-1e779bca0d05
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Roberto Rodriguez @Cyb3rWard0g, original Sigma rule
+status: experimental
+type: TTP
+description: Detects WmiPrvSE spawning a process. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Sysmon EventID 1
+- Windows Event Log Security 4688
+- CrowdStrike ProcessRollup2
+search: |-
+  index=* ParentImage="*\\WmiPrvSe.exe" NOT (LogonId IN ("0x3e7", "null") OR User IN ("*AUTHORI*", "*AUTORI*") OR Image="*\\WmiPrvSE.exe" OR Image="*\\WerFault.exe" OR NOT LogonId=*) | fillnull value="null" dest, user | stats count min(_time) as firstTime max(_time) as lastTime by dest, user | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic was converted from a SigmaHQ stable rule. Ingest the matching log source into Splunk, extract the fields referenced in the search, and constrain index/source/sourcetype to the local CIM or TA field names. Replace the leading index=* with the production index after validation. Tune exclusions only after confirming legitimate activity in the target environment. Expected source classes include: Sysmon EventID 1, Windows Event Log Security 4688, CrowdStrike ProcessRollup2.'
+known_false_positives: 'Known Sigma guidance: False positives are expected (e.g. in environments where WinRM is used legitimately). Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://threathunterplaybook.com/hunts/windows/190815-RemoteServiceInstallation/notebook.html
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_wmiprvse_spawning_process.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: WmiPrvSE Spawned A Process involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 47
+analytic_story:
+- Suspicious WMI Use
+asset_type: Windows
+mitre_attack_id:
+- T1047
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

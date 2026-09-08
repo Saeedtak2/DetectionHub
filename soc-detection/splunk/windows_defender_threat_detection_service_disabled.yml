@@ -1,0 +1,45 @@
+name: Windows Defender Threat Detection Service Disabled
+id: eee25880-d182-4995-a690-5d69345c4ac8
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Ján Trenčanský, frack113, original Sigma rule
+status: experimental
+type: TTP
+description: Detects when the "Windows Defender Threat Protection" service is disabled. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Windows Event Log System
+search: |-
+  index=* source="WinEventLog:System" EventCode=7036 Provider_Name="Service Control Manager" param1 IN ("Windows Defender Antivirus Service", "Service antivirus Microsoft Defender") param2 IN ("stopped", "arrêté") | fillnull value="null" dest, user | stats count min(_time) as firstTime max(_time) as lastTime by dest, user | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic was converted from a SigmaHQ stable rule. Ingest the matching log source into Splunk, extract the fields referenced in the search, and constrain index/source/sourcetype to the local CIM or TA field names. Replace the leading index=* with the production index after validation. Tune exclusions only after confirming legitimate activity in the target environment. Expected source classes include: Windows Event Log System.'
+known_false_positives: 'Known Sigma guidance: Administrator actions; Auto updates of Windows Defender causes restarts. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://learn.microsoft.com/en-us/defender-endpoint/troubleshoot-microsoft-defender-antivirus
+- https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1562.001/T1562.001.md
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/builtin/system/service_control_manager/win_system_defender_disabled.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Windows Defender Threat Detection Service Disabled involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 47
+analytic_story:
+- Windows Defense Evasion Tactics
+asset_type: Windows
+mitre_attack_id:
+- T1685
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental
