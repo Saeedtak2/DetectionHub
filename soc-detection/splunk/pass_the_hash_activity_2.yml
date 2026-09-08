@@ -3,7 +3,7 @@ id: f8f46f7c-25b1-47e2-bbfb-aae2caf98587
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Dave Kennedy, Jeff Warren (method) / David Vassallo (rule), original Sigma rule
+author: Saeed Takbiri, DetectionHub; 
 status: experimental
 type: TTP
 description: Detects the attack technique pass the hash which is used to move laterally inside the network. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
