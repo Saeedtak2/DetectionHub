@@ -3,7 +3,7 @@ id: b14edd36-19f3-4e1c-8a32-2663325669b8
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Thomas Patzke, original Sigma rule
+author: Saeed Takbiri, DetectionHub;
 status: experimental
 type: TTP
 description: Detects various execution patterns of the CrackMapExec pentesting framework. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
