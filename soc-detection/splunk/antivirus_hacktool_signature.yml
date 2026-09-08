@@ -1,0 +1,45 @@
+name: Antivirus - Hacktool Signature
+id: 4e6ea1ee-6587-4a9e-8cb2-b487e5bbaa80
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Florian Roth (Nextron Systems), Arnim Rupp, original Sigma rule
+status: experimental
+type: TTP
+description: 'Detects a highly relevant Antivirus alert that reports a hack tool or other attack tool.\n\n  This event must not be ignored just because the AV has blocked the malware but investigate, how it came there in the first place. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.'
+data_source:
+- Antivirus
+search: |-
+  index=* Signature IN ("ATK/*", "Exploit.Script.CVE*", "HKTL*", "HTOOL*", "PWS.*", "PWSX*", "SecurityTool*") OR Signature IN ("*Adfind*", "*BloodH*", "*BloodyAD*", "*Brutel*", "*BruteR*", "*Cobalt*", "*COBEACON*", "*Cometer*", "*DumpCreds*", "*EDRfreeze*", "*FastReverseProxy*", "*Hacktool*", "*Havoc*", "*Impacket*", "*Keylogger*", "*Koadic*", "*Mimikatz*", "*Nighthawk*", "*PentestPowerShell*", "*Potato*", "*PowerSploit*", "*PowerSSH*", "*PshlSpy*", "*PSWTool*", "*PWCrack*", "*PWDump*", "*Responder*", "*Rozena*", "*Rusthound*", "*Sbelt*", "*Seatbelt*", "*SecurityTool*", "*SharpDump*", "*SharpHound*", "*Shellcode*", "*Sliver*", "*Snaffler*", "*SOAPHound*", "*Splinter*", "*Stowaway*", "*Swrort*", "*Trojan.Hound*", "*TurtleLoader*", "*Undefend*", "*Undfnd*") | fillnull value="null" dest, user | stats count min(_time) as firstTime max(_time) as lastTime by dest, user | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic was converted from a SigmaHQ stable rule. Ingest the matching log source into Splunk, extract the fields referenced in the search, and constrain index/source/sourcetype to the local CIM or TA field names. Replace the leading index=* with the production index after validation. Tune exclusions only after confirming legitimate activity in the target environment. Expected source classes include: Antivirus.'
+known_false_positives: 'Known Sigma guidance: Unlikely. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://www.nextron-systems.com/2021/08/16/antivirus-event-analysis-cheat-sheet-v1-8-2/
+- https://www.nextron-systems.com/?s=antivirus
+- https://github.com/SigmaHQ/sigma/blob/master/rules/category/antivirus/av_hacktool.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Antivirus - Hacktool Signature involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 70
+analytic_story:
+- Unusual Processes
+asset_type: Endpoint
+mitre_attack_id:
+- T1204
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: threat
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

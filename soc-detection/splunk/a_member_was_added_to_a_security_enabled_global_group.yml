@@ -1,0 +1,48 @@
+name: A Member Was Added to a Security-Enabled Global Group
+id: 0fa0e702-cabd-4df6-81ee-995090ed81c1
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Alexandr Yampolskyi, SOC Prime, original Sigma rule
+status: experimental
+type: TTP
+description: Detects activity when a member is added to a security-enabled global group. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Windows Event Log Security
+search: |-
+  index=* source="WinEventLog:Security" EventCode IN (4728, 632) | fillnull value="null" dest, user | stats count min(_time) as firstTime max(_time) as lastTime by dest, user | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic was converted from a SigmaHQ stable rule. Ingest the matching log source into Splunk, extract the fields referenced in the search, and constrain index/source/sourcetype to the local CIM or TA field names. Replace the leading index=* with the production index after validation. Tune exclusions only after confirming legitimate activity in the target environment. Expected source classes include: Windows Event Log Security.'
+known_false_positives: Legitimate administrative or operational activity may match A Member Was Added to a Security-Enabled Global Group. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.
+references:
+- https://www.cisecurity.org/controls/cis-controls-list/
+- https://www.pcisecuritystandards.org/documents/PCI_DSS_v3-2-1.pdf
+- https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.04162018.pdf
+- https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4728
+- https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=632
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/builtin/security/account_management/win_security_member_added_security_enabled_global_group.yml
+drilldown_searches:
+- name: View related events for $user$
+  search: '%original_detection_search% | search user="$user$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: A Member Was Added to a Security-Enabled Global Group involving $user$
+  entity:
+    field: user
+    type: user
+    score: 30
+analytic_story:
+- Active Directory Privilege Escalation
+asset_type: Windows
+mitre_attack_id:
+- T1098
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

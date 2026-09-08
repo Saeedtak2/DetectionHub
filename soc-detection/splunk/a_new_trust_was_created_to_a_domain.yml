@@ -1,0 +1,44 @@
+name: A New Trust Was Created To A Domain
+id: 89aaf87b-0c63-4f0b-b459-d1f013a7b11e
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Thomas Patzke, original Sigma rule
+status: experimental
+type: TTP
+description: Addition of domains is seldom and should be verified for legitimacy. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Windows Event Log Security
+search: |-
+  index=* source="WinEventLog:Security" EventCode=4706 | fillnull value="null" dest, user | stats count min(_time) as firstTime max(_time) as lastTime by dest, user | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic was converted from a SigmaHQ stable rule. Ingest the matching log source into Splunk, extract the fields referenced in the search, and constrain index/source/sourcetype to the local CIM or TA field names. Replace the leading index=* with the production index after validation. Tune exclusions only after confirming legitimate activity in the target environment. Expected source classes include: Windows Event Log Security.'
+known_false_positives: 'Known Sigma guidance: Legitimate extension of domain structure. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4706
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/builtin/security/win_security_susp_add_domain_trust.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: A New Trust Was Created To A Domain involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 47
+analytic_story:
+- Windows Persistence Techniques
+asset_type: Windows
+mitre_attack_id:
+- T1098
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental
