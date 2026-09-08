@@ -1,0 +1,46 @@
+name: Remote LSASS Process Access Through Windows Remote Management
+id: 2bfa7aac-e0e4-476e-8011-ababff7d7c48
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Patryk Prauze - ING Tech, original Sigma rule
+status: experimental
+type: TTP
+description: Detects remote access to the LSASS process via WinRM. This could be a sign of credential dumping from tools like mimikatz. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Sysmon EventID 10
+search: |-
+  index=* TargetImage="*\\lsass.exe" SourceImage="*:\\Windows\\system32\\wsmprovhost.exe" NOT GrantedAccess="0x80000000" | fillnull value="null" dest, user | stats count min(_time) as firstTime max(_time) as lastTime by dest, user | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic was converted from a SigmaHQ stable rule. Ingest the matching log source into Splunk, extract the fields referenced in the search, and constrain index/source/sourcetype to the local CIM or TA field names. Replace the leading index=* with the production index after validation. Tune exclusions only after confirming legitimate activity in the target environment. Expected source classes include: Sysmon EventID 10.'
+known_false_positives: 'Known Sigma guidance: Unlikely. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://pentestlab.blog/2018/05/15/lateral-movement-winrm/
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_access/proc_access_win_lsass_remote_access_trough_winrm.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Remote LSASS Process Access Through Windows Remote Management involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 70
+analytic_story:
+- Credential Dumping
+asset_type: Windows
+mitre_attack_id:
+- T1003.001
+- T1059.001
+- T1021.006
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

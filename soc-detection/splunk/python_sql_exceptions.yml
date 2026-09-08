@@ -1,0 +1,44 @@
+name: Python SQL Exceptions
+id: 4e047ffb-89b3-4ede-8045-3081c971424a
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Thomas Patzke, original Sigma rule
+status: experimental
+type: TTP
+description: Generic rule for SQL exceptions in Python according to PEP 249. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Application Logs
+search: |-
+  index=* "DataError" OR "IntegrityError" OR "ProgrammingError" OR "OperationalError" | fillnull value="null" dest, user | stats count min(_time) as firstTime max(_time) as lastTime by dest, user | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic was converted from a SigmaHQ stable rule. Ingest the matching log source into Splunk, extract the fields referenced in the search, and constrain index/source/sourcetype to the local CIM or TA field names. Replace the leading index=* with the production index after validation. Tune exclusions only after confirming legitimate activity in the target environment. Expected source classes include: Application Logs.'
+known_false_positives: 'Known Sigma guidance: Application bugs. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://www.python.org/dev/peps/pep-0249/#exceptions
+- https://github.com/SigmaHQ/sigma/blob/master/rules/application/python/app_python_sql_exceptions.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Python SQL Exceptions involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 47
+analytic_story:
+- SQL Injection
+asset_type: Web Application
+mitre_attack_id:
+- T1190
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: application
+security_domain: threat
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental
