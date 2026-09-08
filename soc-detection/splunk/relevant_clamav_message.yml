@@ -3,7 +3,7 @@ id: 0d966a3f-4b0e-4ad5-bbf9-3818ff1a523a
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Florian Roth (Nextron Systems), original Sigma rule
+author: Saeed Takbiri, DetectionHub; 
 status: experimental
 type: TTP
 description: Detects relevant ClamAV messages. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
