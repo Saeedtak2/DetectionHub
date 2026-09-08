@@ -3,7 +3,7 @@ id: 95ac32ae-8bea-4671-a727-683b03a649be
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Thomas Patzke, original Sigma rule
+author: Saeed Takbiri, DetectionHub; 
 status: experimental
 type: TTP
 description: Detects suspicious Ruby on Rails exceptions that could indicate exploitation attempts. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
