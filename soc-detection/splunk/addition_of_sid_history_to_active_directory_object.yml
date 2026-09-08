@@ -3,7 +3,7 @@ id: 422d085b-fdf5-4b9f-9e73-d97060f4e985
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Thomas Patzke, @atc_project (improvements), original Sigma rule
+author: Saeed Takbiri, DetectionHub;
 status: experimental
 type: TTP
 description: An attacker can use the SID history attribute to gain additional privileges. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
