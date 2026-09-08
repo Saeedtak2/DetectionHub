@@ -1,1 +1,58 @@
-CommandLine="* -ma *" OR CommandLine="* /ma *" OR CommandLine="* –ma *" OR CommandLine="* —ma *" OR CommandLine="* ―ma *" OR CommandLine="* -mm *" OR CommandLine="* /mm *" OR CommandLine="* –mm *" OR CommandLine="* —mm *" OR CommandLine="* ―mm *" OR CommandLine="* -mp *" OR CommandLine="* /mp *" OR CommandLine="* –mp *" OR CommandLine="* —mp *" OR CommandLine="* ―mp *" CommandLine IN ("* ls*", "* keyiso*", "* samss*")
+| tstats summariesonly=false allow_old_summaries=true fillnull_value="null"
+    count
+    min(_time) AS firstTime
+    max(_time) AS lastTime
+    FROM datamodel=Endpoint.Processes
+    WHERE (
+        Processes.process="* -ma *"
+        OR Processes.process="* /ma *"
+        OR Processes.process="* –ma *"
+        OR Processes.process="* —ma *"
+        OR Processes.process="* ―ma *"
+        OR Processes.process="* -mm *"
+        OR Processes.process="* /mm *"
+        OR Processes.process="* –mm *"
+        OR Processes.process="* —mm *"
+        OR Processes.process="* ―mm *"
+        OR Processes.process="* -mp *"
+        OR Processes.process="* /mp *"
+        OR Processes.process="* –mp *"
+        OR Processes.process="* —mp *"
+        OR Processes.process="* ―mp *"
+    )
+    AND Processes.process IN ("* ls*", "* keyiso*", "* samss*")
+    BY
+        Processes.process
+        Processes.dest
+        Processes.process_path
+        Processes.original_file_name
+        Processes.parent_process
+        Processes.parent_process_path
+        Processes.process_id
+        Processes.parent_process_id
+        Processes.user
+| rename Processes.* AS *
+| convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+| eval
+    detection_name="Potential LSASS Process Dump Via Procdump",
+    detection_status="stable",
+    severity="high",
+    original_author="Florian Roth (Nextron Systems)",
+    converted_by="Saeed Takbiri"
+| table
+    firstTime
+    lastTime
+    dest
+    user
+    process
+    process_path
+    process_id
+    parent_process
+    parent_process_path
+    parent_process_id
+    detection_name
+    detection_status
+    severity
+    original_author
+    converted_by
+| sort - lastTime
