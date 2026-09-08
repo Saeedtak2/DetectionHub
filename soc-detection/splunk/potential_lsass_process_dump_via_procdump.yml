@@ -3,7 +3,7 @@ id: e50cad6d-9ee8-4b6f-a3f7-f6d695a55171
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Florian Roth (Nextron Systems), original Sigma rule
+author: Saeed Takbiri, DetectionHub;
 status: experimental
 type: TTP
 description: The following analytic detects command-line patterns commonly used to create an LSASS process memory dump with ProcDump or a similarly invoked utility. It identifies full, mini, or miniplus dump flags combined with command-line references associated with LSASS, KeyIso, or SamSs. This behavior is significant because LSASS memory can contain NTLM hashes, Kerberos tickets, and other authentication material. If confirmed malicious, the activity may enable credential theft, privilege escalation, and lateral movement.
