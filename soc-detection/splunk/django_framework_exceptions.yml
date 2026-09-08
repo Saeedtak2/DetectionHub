@@ -3,7 +3,7 @@ id: 614dc674-8524-4000-be62-cb8b27b54ad6
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Thomas Patzke, original Sigma rule
+author: Saeed Takbiri, DetectionHub; 
 status: experimental
 type: TTP
 description: Detects suspicious Django web application framework exceptions that could indicate exploitation attempts. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
