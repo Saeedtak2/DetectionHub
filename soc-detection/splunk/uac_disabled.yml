@@ -1,0 +1,46 @@
+name: UAC Disabled
+id: 57f3ab41-0cfe-48b9-912e-1e33ea3d41dd
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; frack113, original Sigma rule
+status: experimental
+type: TTP
+description: Detects when an attacker tries to disable User Account Control (UAC) by setting the registry value "EnableLUA" to 0. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Sysmon EventID 12
+- Sysmon EventID 13
+- Sysmon EventID 14
+search: |-
+  | tstats summariesonly=false allow_old_summaries=true fillnull_value="null" count min(_time) as firstTime max(_time) as lastTime from datamodel=Endpoint.Registry where (Registry.registry_key_name="*\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\EnableLUA*" Registry.registry_value_data="DWORD (0x00000000)") by Registry.action Registry.dest Registry.process_guid Registry.process_id Registry.registry_hive Registry.registry_key_name Registry.registry_path Registry.registry_value_data Registry.registry_value_name Registry.registry_value_type Registry.status Registry.user Registry.vendor_product | rename Registry.* AS * | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic requires endpoint registry telemetry mapped to the Registry node of the Endpoint Common Information Model data model. Ingest Sysmon registry events or equivalent EDR registry activity and confirm registry path, value name, value data, destination, and user fields are populated. Data-model acceleration is recommended but is not required because summariesonly is set to false. Expected source classes include: Sysmon EventID 12, Sysmon EventID 13, Sysmon EventID 14.'
+known_false_positives: Legitimate administrative or operational activity may match UAC Disabled. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.
+references:
+- https://github.com/redcanaryco/atomic-red-team/blob/7e11e9b79583545f208a6dc3fa062f2ed443d999/atomics/T1548.002/T1548.002.md
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/registry/registry_set/registry_set_uac_disable.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: UAC Disabled involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 47
+analytic_story:
+- Windows Defense Evasion Tactics
+asset_type: Windows
+mitre_attack_id:
+- T1548.002
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

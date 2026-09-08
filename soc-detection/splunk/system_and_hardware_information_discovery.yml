@@ -1,0 +1,44 @@
+name: System and Hardware Information Discovery
+id: ae022606-fa25-47dd-a9cc-2b9f0fee70ed
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Ömer Günal, oscd.community, original Sigma rule
+status: experimental
+type: TTP
+description: Detects system information discovery commands. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Linux Auditd
+search: |-
+  index=* type="PATH" name IN ("/sys/class/dmi/id/bios_version", "/sys/class/dmi/id/product_name", "/sys/class/dmi/id/chassis_vendor", "/proc/scsi/scsi", "/proc/ide/hd0/model", "/proc/version", "/etc/*version", "/etc/*release", "/etc/issue") | fillnull value="null" dest, user | stats count min(_time) as firstTime max(_time) as lastTime by dest, user | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic was converted from a SigmaHQ stable rule. Ingest the matching log source into Splunk, extract the fields referenced in the search, and constrain index/source/sourcetype to the local CIM or TA field names. Replace the leading index=* with the production index after validation. Tune exclusions only after confirming legitimate activity in the target environment. Expected source classes include: Linux Auditd.'
+known_false_positives: 'Known Sigma guidance: Legitimate administration activities. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1082/T1082.md#atomic-test-4---linux-vm-check-via-hardware
+- https://github.com/SigmaHQ/sigma/blob/master/rules/linux/auditd/path/lnx_auditd_system_info_discovery2.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: System and Hardware Information Discovery involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 20
+analytic_story:
+- Windows Discovery Techniques
+asset_type: Endpoint
+mitre_attack_id:
+- T1082
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental
