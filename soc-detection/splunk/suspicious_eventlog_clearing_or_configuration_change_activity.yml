@@ -3,7 +3,7 @@ id: fa7f63fb-6701-4d63-80d2-188ff8ef5d17
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Ecco, Daniil Yugoslavskiy, oscd.community, D3F7A5105, Swachchhanda Shrawan Poudel (Nextron Systems), original Sigma rule
+author: Saeed Takbiri, DetectionHub; 
 status: experimental
 type: TTP
 description: 'Detects the clearing or configuration tampering of EventLog using utilities such as "wevtutil", "powershell" and "wmic".
