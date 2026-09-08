@@ -3,7 +3,7 @@ id: 92360576-aed5-418c-a664-ef91fe1c6826
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Alexandr Yampolskyi, SOC Prime, original Sigma rule
+author: Saeed Takbiri, DetectionHub;
 status: experimental
 type: TTP
 description: Detects activity when a member is removed from a security-enabled global group. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
