@@ -3,7 +3,7 @@ id: fc21e5f8-b088-4ad2-b30d-17c0146c4025
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Sittikorn S, original Sigma rule
+author: Saeed Takbiri, DetectionHub;
 status: experimental
 type: TTP
 description: 'Identifies disabling of default Amazon Elastic Block Store (EBS) encryption in the current region.\n\n  Disabling default encryption does not change the encryption status of your existing volumes. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.'
