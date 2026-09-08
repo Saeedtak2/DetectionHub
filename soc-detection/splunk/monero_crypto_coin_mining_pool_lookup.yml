@@ -1,0 +1,45 @@
+name: Monero Crypto Coin Mining Pool Lookup
+id: e031f373-0e07-4775-8d83-3d04248ba65f
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Florian Roth (Nextron Systems), original Sigma rule
+status: experimental
+type: TTP
+description: Detects suspicious DNS queries to Monero mining pools. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- DNS
+search: |-
+  index=* query IN ("*pool.minexmr.com*", "*fr.minexmr.com*", "*de.minexmr.com*", "*sg.minexmr.com*", "*ca.minexmr.com*", "*us-west.minexmr.com*", "*pool.supportxmr.com*", "*mine.c3pool.com*", "*xmr-eu1.nanopool.org*", "*xmr-eu2.nanopool.org*", "*xmr-us-east1.nanopool.org*", "*xmr-us-west1.nanopool.org*", "*xmr-asia1.nanopool.org*", "*xmr-jp1.nanopool.org*", "*xmr-au1.nanopool.org*", "*xmr.2miners.com*", "*xmr.hashcity.org*", "*xmr.f2pool.com*", "*xmrpool.eu*", "*pool.hashvault.pro*") | fillnull value="null" dest, user | stats count min(_time) as firstTime max(_time) as lastTime by dest, user | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic was converted from a SigmaHQ stable rule. Ingest the matching log source into Splunk, extract the fields referenced in the search, and constrain index/source/sourcetype to the local CIM or TA field names. Replace the leading index=* with the production index after validation. Tune exclusions only after confirming legitimate activity in the target environment. Expected source classes include: DNS.'
+known_false_positives: 'Known Sigma guidance: Legitimate crypto coin mining. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://www.nextron-systems.com/2021/10/24/monero-mining-pool-fqdns/
+- https://github.com/SigmaHQ/sigma/blob/master/rules/network/dns/net_dns_pua_cryptocoin_mining_xmr.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Monero Crypto Coin Mining Pool Lookup involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 70
+analytic_story:
+- Cloud Cryptomining
+asset_type: DNS Servers
+mitre_attack_id:
+- T1496
+- T1567
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: network
+security_domain: network
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

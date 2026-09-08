@@ -1,0 +1,44 @@
+name: Overwriting the File with Dev Zero or Null
+id: cf95ad74-fff8-492d-9569-52fa5c80529e
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Jakob Weinzettl, oscd.community, original Sigma rule
+status: experimental
+type: TTP
+description: Detects overwriting (effectively wiping/deleting) of a file. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Linux Auditd
+search: |-
+  index=* type="EXECVE" a0="*dd*" a1 IN ("*if=/dev/null*", "*if=/dev/zero*") | fillnull value="null" dest, user | stats count min(_time) as firstTime max(_time) as lastTime by dest, user | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic was converted from a SigmaHQ stable rule. Ingest the matching log source into Splunk, extract the fields referenced in the search, and constrain index/source/sourcetype to the local CIM or TA field names. Replace the leading index=* with the production index after validation. Tune exclusions only after confirming legitimate activity in the target environment. Expected source classes include: Linux Auditd.'
+known_false_positives: 'Known Sigma guidance: Appending null bytes to files.; Legitimate overwrite of files.. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1485/T1485.md
+- https://github.com/SigmaHQ/sigma/blob/master/rules/linux/auditd/execve/lnx_auditd_dd_delete_file.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Overwriting the File with Dev Zero or Null involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 30
+analytic_story:
+- Linux Living Off The Land
+asset_type: Endpoint
+mitre_attack_id:
+- T1485
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

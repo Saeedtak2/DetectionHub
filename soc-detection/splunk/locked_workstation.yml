@@ -1,0 +1,46 @@
+name: Locked Workstation
+id: 0b6b5b7a-2083-4888-8060-fbed287dcef1
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Alexandr Yampolskyi, SOC Prime, original Sigma rule
+status: experimental
+type: TTP
+description: Detects locked workstation session events that occur automatically after a standard period of inactivity. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Windows Event Log Security
+search: |-
+  index=* source="WinEventLog:Security" EventCode=4800 | fillnull value="null" dest, user | stats count min(_time) as firstTime max(_time) as lastTime by dest, user | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic was converted from a SigmaHQ stable rule. Ingest the matching log source into Splunk, extract the fields referenced in the search, and constrain index/source/sourcetype to the local CIM or TA field names. Replace the leading index=* with the production index after validation. Tune exclusions only after confirming legitimate activity in the target environment. Expected source classes include: Windows Event Log Security.'
+known_false_positives: 'Known Sigma guidance: Likely. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://www.cisecurity.org/controls/cis-controls-list/
+- https://www.pcisecuritystandards.org/documents/PCI_DSS_v3-2-1.pdf
+- https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.04162018.pdf
+- https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4800
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/builtin/security/win_security_workstation_was_locked.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Locked Workstation involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 20
+analytic_story:
+- Suspicious Command-Line Executions
+asset_type: Windows
+mitre_attack_id: []
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

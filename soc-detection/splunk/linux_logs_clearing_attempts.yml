@@ -1,0 +1,47 @@
+name: Linux Logs Clearing Attempts
+id: c5c3db24-34d1-48be-8279-30ef48a437ea
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Ömer Günal, oscd.community, original Sigma rule
+status: experimental
+type: TTP
+description: 'Detects logs clearing attempts on Linux systems via utilities such as ''rm'', ''rmdir'', ''shred'', and ''unlink'' targeting log files and directories.
+
+  Adversaries often try to clear logs to cover their tracks after performing malicious activities. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.'
+data_source:
+- Linux Auditd
+- Sysmon EventID 1
+search: |-
+  | tstats summariesonly=false allow_old_summaries=true fillnull_value="null" count min(_time) as firstTime max(_time) as lastTime from datamodel=Endpoint.Processes where (Processes.process_path IN ("*/rm", "*/rmdir", "*/shred", "*/unlink") Processes.process IN ("*/var/log*", "*/var/spool/mail*") NOT ((Processes.process_path="*/rm" Processes.process="rm -f /var/log/sysstat/*") OR (Processes.process_path="*/rm" Processes.process="rm -f -- /var/log//dmesg*"))) by Processes.action Processes.dest Processes.original_file_name Processes.parent_process Processes.parent_process_exec Processes.parent_process_guid Processes.parent_process_id Processes.parent_process_name Processes.parent_process_path Processes.process Processes.process_exec Processes.process_guid Processes.process_hash Processes.process_id Processes.process_integrity_level Processes.process_name Processes.process_path Processes.user Processes.user_id Processes.vendor_product | rename Processes.* AS * | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic requires endpoint process-creation telemetry with full command lines. Configure the applicable Splunk Technology Add-on so endpoint events are normalized to the Processes node of the Endpoint Common Information Model data model. Confirm that process, process name, original file name, parent process, destination, user, and process identifiers are populated. Data-model acceleration is recommended but is not required because summariesonly is set to false. Expected source classes include: Linux Auditd, Sysmon EventID 1.'
+known_false_positives: 'Known Sigma guidance: Legitimate administration activities. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1070.002/T1070.002.md
+- https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_clear_logs.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Linux Logs Clearing Attempts involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 47
+analytic_story:
+- Linux Living Off The Land
+asset_type: Endpoint
+mitre_attack_id:
+- T1685.006
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

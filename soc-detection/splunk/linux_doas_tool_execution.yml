@@ -1,0 +1,46 @@
+name: Linux Doas Tool Execution
+id: 9a4242c6-fe2e-499f-a0c0-4e4ed291df9a
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Sittikorn S, Teoderick Contreras, original Sigma rule
+status: experimental
+type: TTP
+description: Detects the doas tool execution in linux host platform. This utility tool allow standard users to perform tasks as root, the same way sudo does. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Linux Auditd
+- Sysmon EventID 1
+search: |-
+  | tstats summariesonly=false allow_old_summaries=true fillnull_value="null" count min(_time) as firstTime max(_time) as lastTime from datamodel=Endpoint.Processes where (Processes.process_path="*/doas") by Processes.action Processes.dest Processes.original_file_name Processes.parent_process Processes.parent_process_exec Processes.parent_process_guid Processes.parent_process_id Processes.parent_process_name Processes.parent_process_path Processes.process Processes.process_exec Processes.process_guid Processes.process_hash Processes.process_id Processes.process_integrity_level Processes.process_name Processes.process_path Processes.user Processes.user_id Processes.vendor_product | rename Processes.* AS * | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic requires endpoint process-creation telemetry with full command lines. Configure the applicable Splunk Technology Add-on so endpoint events are normalized to the Processes node of the Endpoint Common Information Model data model. Confirm that process, process name, original file name, parent process, destination, user, and process identifiers are populated. Data-model acceleration is recommended but is not required because summariesonly is set to false. Expected source classes include: Linux Auditd, Sysmon EventID 1.'
+known_false_positives: 'Known Sigma guidance: Unlikely. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://research.splunk.com/endpoint/linux_doas_tool_execution/
+- https://www.makeuseof.com/how-to-install-and-use-doas/
+- https://github.com/SigmaHQ/sigma/blob/master/rules/linux/process_creation/proc_creation_lnx_doas_execution.yml
+drilldown_searches:
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Linux Doas Tool Execution involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 30
+analytic_story:
+- Linux Living Off The Land
+asset_type: Endpoint
+mitre_attack_id:
+- T1548
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

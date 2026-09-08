@@ -1,0 +1,46 @@
+name: Pass the Hash Activity 2
+id: f8f46f7c-25b1-47e2-bbfb-aae2caf98587
+version: 1
+creation_date: '2026-09-08'
+modification_date: '2026-09-08'
+author: Saeed Takbiri, DetectionHub; Dave Kennedy, Jeff Warren (method) / David Vassallo (rule), original Sigma rule
+status: experimental
+type: TTP
+description: Detects the attack technique pass the hash which is used to move laterally inside the network. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
+data_source:
+- Windows Event Log Security
+search: |-
+  index=* source="WinEventLog:Security" (EventCode=4624 SubjectUserSid="S-1-0-0" LogonType=3 LogonProcessName="NtLmSsp" KeyLength=0) OR (EventCode=4624 LogonType=9 LogonProcessName="seclogo") NOT TargetUserName="ANONYMOUS LOGON" | fillnull value="null" dest, user | stats count min(_time) as firstTime max(_time) as lastTime by dest, user | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic was converted from a SigmaHQ stable rule. Ingest the matching log source into Splunk, extract the fields referenced in the search, and constrain index/source/sourcetype to the local CIM or TA field names. Replace the leading index=* with the production index after validation. Tune exclusions only after confirming legitimate activity in the target environment. Expected source classes include: Windows Event Log Security.'
+known_false_positives: 'Known Sigma guidance: Administrator activity. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
+references:
+- https://github.com/iadgov/Event-Forwarding-Guidance/tree/master/Events
+- https://web.archive.org/web/20170909091934/https://blog.binarydefense.com/reliably-detecting-pass-the-hash-through-event-log-analysis
+- https://blog.stealthbits.com/how-to-detect-pass-the-hash-attacks/
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/builtin/security/account_management/win_security_pass_the_hash_2.yml
+drilldown_searches:
+- name: View related events for $user$
+  search: '%original_detection_search% | search user="$user$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
+finding:
+  title: Pass the Hash Activity 2 involving $user$
+  entity:
+    field: user
+    type: user
+    score: 47
+analytic_story:
+- Active Directory Lateral Movement
+asset_type: Windows
+mitre_attack_id:
+- T1550.002
+product:
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
+category: endpoint
+security_domain: endpoint
+tests:
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental
