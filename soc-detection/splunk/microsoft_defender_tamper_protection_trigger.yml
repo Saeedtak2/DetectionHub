@@ -3,7 +3,7 @@ id: e1c07dc1-5653-4ef5-99e3-a91dc5a1a652
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Bhabesh Raj, Nasreddine Bencherchali, original Sigma rule
+author: Saeed Takbiri, DetectionHub;
 status: experimental
 type: TTP
 description: Detects blocked attempts to change any of Defender's settings such as "Real Time Monitoring" and "Behavior Monitoring". This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
