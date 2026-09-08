@@ -3,7 +3,7 @@ id: 4e6ea1ee-6587-4a9e-8cb2-b487e5bbaa80
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Florian Roth (Nextron Systems), Arnim Rupp, original Sigma rule
+author: Saeed Takbiri, DetectionHub;
 status: experimental
 type: TTP
 description: 'Detects a highly relevant Antivirus alert that reports a hack tool or other attack tool.\n\n  This event must not be ignored just because the AV has blocked the malware but investigate, how it came there in the first place. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.'
