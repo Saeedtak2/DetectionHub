@@ -3,7 +3,7 @@ id: 028e3e2e-245f-4ba7-84cd-5c4e07e467c2
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; Sittikorn S, original Sigma rule
+author: Saeed Takbiri, DetectionHub;
 status: experimental
 type: TTP
 description: Detects the modification of the findings on SecurityHub. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
