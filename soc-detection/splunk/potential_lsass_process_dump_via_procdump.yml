@@ -3,47 +3,53 @@ id: e50cad6d-9ee8-4b6f-a3f7-f6d695a55171
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub;
+author: Saeed Takbiri, DetectionHub; Florian Roth (Nextron Systems), original Sigma rule
 status: experimental
 type: TTP
-description: The following analytic detects command-line patterns commonly used to create an LSASS process memory dump with ProcDump or a similarly invoked utility. It identifies full, mini, or miniplus dump flags combined with command-line references associated with LSASS, KeyIso, or SamSs. This behavior is significant because LSASS memory can contain NTLM hashes, Kerberos tickets, and other authentication material. If confirmed malicious, the activity may enable credential theft, privilege escalation, and lateral movement.
+description: 'Detects potential credential harvesting attempts through LSASS memory dumps using ProcDump.
+
+  This rule identifies suspicious command-line patterns that combine memory dump flags (-ma, -mm, -mp) with LSASS-related process markers.
+
+  LSASS (Local Security Authority Subsystem Service) contains sensitive authentication data including plaintext passwords, NTLM hashes, and Kerberos tickets in memory.
+
+  Attackers commonly dump LSASS memory to extract credentials for lateral movement and privilege escalation. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.'
 data_source:
-    - Sysmon EventID 1
-    - Windows Event Log Security 4688
-    - CrowdStrike ProcessRollup2
+- Sysmon EventID 1
+- Windows Event Log Security 4688
+- CrowdStrike ProcessRollup2
 search: |-
-    | tstats summariesonly=false allow_old_summaries=true fillnull_value="null" count min(_time) as firstTime max(_time) as lastTime from datamodel=Endpoint.Processes where (Processes.process="* -ma *" OR Processes.process="* /ma *" OR Processes.process="* –ma *" OR Processes.process="* —ma *" OR Processes.process="* ―ma *" OR Processes.process="* -mm *" OR Processes.process="* /mm *" OR Processes.process="* –mm *" OR Processes.process="* —mm *" OR Processes.process="* ―mm *" OR Processes.process="* -mp *" OR Processes.process="* /mp *" OR Processes.process="* –mp *" OR Processes.process="* —mp *" OR Processes.process="* ―mp *") AND Processes.process IN ("* ls*", "* keyiso*", "* samss*") by Processes.action Processes.dest Processes.original_file_name Processes.parent_process Processes.parent_process_exec Processes.parent_process_guid Processes.parent_process_id Processes.parent_process_name Processes.parent_process_path Processes.process Processes.process_exec Processes.process_guid Processes.process_hash Processes.process_id Processes.process_integrity_level Processes.process_name Processes.process_path Processes.user Processes.user_id Processes.vendor_product | rename Processes.* AS * | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
-how_to_implement: This analytic requires endpoint process-creation telemetry with full command lines. Configure the applicable Splunk Technology Add-on so endpoint events are normalized to the Processes node of the Endpoint Common Information Model data model. Confirm that process, process name, original file name, parent process, destination, user, and process identifiers are populated. Data-model acceleration is recommended but is not required because summariesonly is set to false. Tune the search only after validating legitimate memory-dump workflows in the target environment.
-known_false_positives: Legitimate administrators or support personnel may create process dumps during approved troubleshooting. Validate the target process, dump destination, parent process, initiating account, host role, change record, and surrounding activity. Dumping LSASS or related security processes should be rare and reviewed promptly.
+  | tstats summariesonly=false allow_old_summaries=true fillnull_value="null" count min(_time) as firstTime max(_time) as lastTime from datamodel=Endpoint.Processes where (Processes.process="* -ma *" OR Processes.process="* /ma *" OR Processes.process="* –ma *" OR Processes.process="* —ma *" OR Processes.process="* ―ma *" OR Processes.process="* -mm *" OR Processes.process="* /mm *" OR Processes.process="* –mm *" OR Processes.process="* —mm *" OR Processes.process="* ―mm *" OR Processes.process="* -mp *" OR Processes.process="* /mp *" OR Processes.process="* –mp *" OR Processes.process="* —mp *" OR Processes.process="* ―mp *" Processes.process IN ("* ls*", "* keyiso*", "* samss*")) by Processes.action Processes.dest Processes.original_file_name Processes.parent_process Processes.parent_process_exec Processes.parent_process_guid Processes.parent_process_id Processes.parent_process_name Processes.parent_process_path Processes.process Processes.process_exec Processes.process_guid Processes.process_hash Processes.process_id Processes.process_integrity_level Processes.process_name Processes.process_path Processes.user Processes.user_id Processes.vendor_product | rename Processes.* AS * | convert timeformat="%Y-%m-%dT%H:%M:%S" ctime(firstTime) ctime(lastTime)
+how_to_implement: 'This analytic requires endpoint process-creation telemetry with full command lines. Configure the applicable Splunk Technology Add-on so endpoint events are normalized to the Processes node of the Endpoint Common Information Model data model. Confirm that process, process name, original file name, parent process, destination, user, and process identifiers are populated. Data-model acceleration is recommended but is not required because summariesonly is set to false. Expected source classes include: Sysmon EventID 1, Windows Event Log Security 4688, CrowdStrike ProcessRollup2.'
+known_false_positives: 'Known Sigma guidance: Unlikely, because no one should dump an lsass process memory; Another tool that uses command line flags similar to ProcDump. Validate the host, account, parent process, surrounding activity, and any change record before treating the event as malicious.'
 references:
-    - https://learn.microsoft.com/en-us/sysinternals/downloads/procdump
-    - https://attack.mitre.org/techniques/T1003/001/
-    - https://research.splunk.com/endpoint/3742ebfe-64c2-11eb-ae93-0242ac130002
-    - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_sysinternals_procdump_lsass.yml
+- https://learn.microsoft.com/en-us/sysinternals/downloads/procdump
+- https://research.splunk.com/endpoint/3742ebfe-64c2-11eb-ae93-0242ac130002
+- https://x.com/wietze/status/1958302556033065292?s=12
+- https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_sysinternals_procdump_lsass.yml
 drilldown_searches:
-    - name: View related process activity for $dest$ and $user$
-      search: '%original_detection_search% | search dest="$dest$" user="$user$"'
-      earliest_offset: $info_min_time$
-      latest_offset: $info_max_time$
+- name: View related events for $dest$
+  search: '%original_detection_search% | search dest="$dest$"'
+  earliest_offset: $info_min_time$
+  latest_offset: $info_max_time$
 finding:
-    title: Potential LSASS process dump activity by $user$ on $dest$
-    entity:
-        field: dest
-        type: system
-        score: 70
+  title: Potential LSASS Process Dump Via Procdump involving $dest$
+  entity:
+    field: dest
+    type: system
+    score: 70
 analytic_story:
-    - Credential Dumping
+- Credential Dumping
 asset_type: Windows
 mitre_attack_id:
-    - T1003.001
-    - T1036
+- T1036
+- T1003.001
 product:
-    - Splunk Enterprise
-    - Splunk Enterprise Security
-    - Splunk Cloud
+- Splunk Enterprise
+- Splunk Enterprise Security
+- Splunk Cloud
 category: endpoint
 security_domain: endpoint
 tests:
-    - name: Validation Pending
-      description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized ProcDump LSASS simulation data and replace this experimental test with a passing unit test before changing the status to production.
-      test_type: experimental
+- name: Validation Pending
+  description: This converted analytic has not yet been tested with a maintained attack-data fixture in DetectionHub. Validate it against authorized simulation data for the original Sigma rule and replace this experimental test with a passing unit test before changing the status to production.
+  test_type: experimental

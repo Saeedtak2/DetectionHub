@@ -3,7 +3,7 @@ id: 8def8e42-c0cb-4829-b80a-59cec261bde3
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; 
+author: Saeed Takbiri, DetectionHub; Markus Neis @Karneades, original Sigma rule
 status: experimental
 type: TTP
 description: Detects Powershell as a child of the WmiPrvSE process. Which could be a sign of lateral movement via WMI. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
