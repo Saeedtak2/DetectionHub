@@ -3,7 +3,7 @@ id: c5c3db24-34d1-48be-8279-30ef48a437ea
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; 
+author: Saeed Takbiri, DetectionHub; Ömer Günal, oscd.community, original Sigma rule
 status: experimental
 type: TTP
 description: 'Detects logs clearing attempts on Linux systems via utilities such as ''rm'', ''rmdir'', ''shred'', and ''unlink'' targeting log files and directories.
