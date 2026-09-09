@@ -3,7 +3,7 @@ id: 4a0db12b-4b80-4736-b2c8-aa05f18c5290
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub;
+author: Saeed Takbiri, DetectionHub; E.M. Anhaus (originally from Atomic Blue Detections, Endgame), oscd.community, original Sigma rule
 status: experimental
 type: TTP
 description: Detects the use of the bcdedit command to tamper with the boot configuration data. This technique is often times used by malware or attackers as a destructive way before launching ransomware. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.

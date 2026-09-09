@@ -3,7 +3,7 @@ id: 5510581e-e9f4-426b-9d6b-eec5493376f8
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, 
+author: Saeed Takbiri, DetectionHub; Alexandr Yampolskyi, SOC Prime, Tim Shelton, original Sigma rule
 status: experimental
 type: TTP
 description: 'Ensure that all account usernames and authentication credentials are transmitted across networks using encrypted channels.
