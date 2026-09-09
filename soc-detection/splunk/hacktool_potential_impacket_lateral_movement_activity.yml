@@ -3,7 +3,7 @@ id: d3d21bb4-4568-41ae-8945-faf0572d524b
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub;
+author: Saeed Takbiri, DetectionHub; Ecco, oscd.community, Jonhnathan Ribeiro, Tim Rauch, original Sigma rule
 status: experimental
 type: TTP
 description: Detects wmiexec/dcomexec/atexec/smbexec from Impacket framework. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.

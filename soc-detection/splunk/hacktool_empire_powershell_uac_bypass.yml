@@ -3,7 +3,7 @@ id: ff2c1ef6-bfcf-4a12-bd6c-c7f61fef6f54
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub;
+author: Saeed Takbiri, DetectionHub; Ecco, original Sigma rule
 status: experimental
 type: TTP
 description: Detects some Empire PowerShell UAC bypass methods. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
