@@ -3,7 +3,7 @@ id: b33b0892-2b21-493f-898d-161d2f73eac4
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; 
+author: Saeed Takbiri, DetectionHub; Endgame, JHasenbusch (ported for oscd.community), original Sigma rule
 status: experimental
 type: TTP
 description: Detects attempts to enumerate file shares, printer shares and sessions using "net.exe" with the "view" flag. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.

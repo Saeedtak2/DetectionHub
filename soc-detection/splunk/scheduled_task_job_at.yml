@@ -3,7 +3,7 @@ id: 07d11025-f5f2-4cc9-b28c-5a5bb12bf6c3
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; 
+author: Saeed Takbiri, DetectionHub; Ömer Günal, oscd.community, original Sigma rule
 status: experimental
 type: TTP
 description: 'Detects the use of at/atd which are utilities that are used to schedule tasks.
