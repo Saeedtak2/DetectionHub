@@ -3,7 +3,7 @@ id: e9dd09fd-92cd-4ef4-9f68-6c929420e80c
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; 
+author: Saeed Takbiri, DetectionHub; Ömer Günal, original Sigma rule
 status: experimental
 type: TTP
 description: Detects the use of tools that copy files from or to remote systems. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.

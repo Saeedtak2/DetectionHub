@@ -3,7 +3,7 @@ id: 2bfa7aac-e0e4-476e-8011-ababff7d7c48
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; 
+author: Saeed Takbiri, DetectionHub; Patryk Prauze - ING Tech, original Sigma rule
 status: experimental
 type: TTP
 description: Detects remote access to the LSASS process via WinRM. This could be a sign of credential dumping from tools like mimikatz. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.

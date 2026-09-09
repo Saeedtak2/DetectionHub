@@ -3,7 +3,7 @@ id: 4e047ffb-89b3-4ede-8045-3081c971424a
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; 
+author: Saeed Takbiri, DetectionHub; Thomas Patzke, original Sigma rule
 status: experimental
 type: TTP
 description: Generic rule for SQL exceptions in Python according to PEP 249. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
