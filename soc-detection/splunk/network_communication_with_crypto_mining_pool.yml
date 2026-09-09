@@ -3,7 +3,7 @@ id: d5b6d2d7-1148-44f5-b69a-1ae9126b5e22
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; 
+author: Saeed Takbiri, DetectionHub; Florian Roth (Nextron Systems), Nasreddine Bencherchali (Nextron Systems), original Sigma rule
 status: experimental
 type: TTP
 description: 'Detects initiated network connections to crypto mining pools.

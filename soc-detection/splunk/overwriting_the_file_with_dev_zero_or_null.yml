@@ -3,7 +3,7 @@ id: cf95ad74-fff8-492d-9569-52fa5c80529e
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub;
+author: Saeed Takbiri, DetectionHub; Jakob Weinzettl, oscd.community, original Sigma rule
 status: experimental
 type: TTP
 description: Detects overwriting (effectively wiping/deleting) of a file. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
