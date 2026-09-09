@@ -3,7 +3,7 @@ id: 74831346-d91e-4134-8f87-d6f32e10dbb8
 version: 1
 creation_date: '2026-09-08'
 modification_date: '2026-09-08'
-author: Saeed Takbiri, DetectionHub; 
+author: Saeed Takbiri, DetectionHub; Ömer Günal, oscd.community, original Sigma rule
 status: experimental
 type: TTP
 description: Detects system information discovery commands. This converted Splunk analytic preserves the original Sigma selection logic and remains experimental until a DetectionHub unit test succeeds in the target environment.
